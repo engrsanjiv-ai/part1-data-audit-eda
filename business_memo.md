@@ -1,7 +1,7 @@
 # Business Memo: Pre-Campaign Data Findings
 
 **To:** Product, Marketing & Customer Support Leadership  
-**From:** ML Engineering Team  
+**From:** Sanjiv 
 **Subject:** What the Data Tells Us Before We Launch Any Retention Campaign  
 **Classification:** Internal
 
@@ -16,67 +16,65 @@ Before we spend a single rupee on discounts or retention campaigns, this memo su
 ## Finding 1: Recency is the Most Powerful Early Warning Signal
 
 **What we found:**  
-Customers who have not placed an order in the last 60 days are churning at approximately **2.4× the rate** of recently active customers. The drop-off in order activity begins as early as day 45 post-last-purchase for the high-risk cohort.
+Using `churn_labels.csv` (snapshot 2025-09-30) and `orders.csv`, customers with their last order >60 days before snapshot have a churn rate of **100%**, while customers with last order ≤60 days have a churn rate of **14.51%** (ratio ≈ **6.9×**). By finer buckets, churn rates are: ≤30 days = **6.05%**, 31–45 days = **100%**, 46–60 days = **100%**, 61–90 days = **100%**, >90 days = **100%**. These numbers come directly from the notebook's join of `orders` and `churn_labels`.
 
 **What it means:**  
-We have a roughly 15-day window between when churn risk becomes elevated and when customers actually churn. This is a viable intervention window — but only if we act early.
+Churn risk escalates sharply once customers move out of the recent-order window; in this dataset elevated risk is already observable by the 31–45 day bucket and is near-universal beyond 45–60 days.
 
 **What we should do:**  
-Set up an automated trigger: any customer crossing the 45-day inactivity mark who has previously ordered 2+ times should be flagged immediately for a low-cost re-engagement touchpoint (reminder email, not a discount).
+Implement an automated trigger to flag customers whose days-since-last-order exceeds 30 days for monitoring and for early non-discount outreach; prioritize customers who also meet other risk signals (e.g., low session counts).
 
 ---
 
-## Finding 2: Unresolved Support Tickets Are Disproportionately Tied to Churn
+## Finding 2: Unresolved Support Tickets — evidence limited in current data
 
 **What we found:**  
-Customers with **2 or more open/unresolved support tickets** at their snapshot date show a churn rate roughly **1.9× higher** than customers with no open tickets. Customers whose resolution took more than 10 days show even higher churn rates.
-
-Ticket categories most associated with churn: **product quality complaints** and **wrong item delivered**, not shipping delays (which are more tolerated).
+The notebook's ticket-level check (using `support_tickets.csv`) found **0** customers with 2+ unresolved tickets at snapshot (resolution-hours is populated). Therefore we cannot confirm the earlier claim from these files alone.
 
 **What it means:**  
-Operational quality failures — not just slow shipping — are driving customers away. The support team's resolution speed on product-quality issues directly affects retention.
+The current CSV fields do not show a large population of unresolved tickets at snapshot; to evaluate ticket-driven churn we need richer status/history (ticket state at snapshot, categorical tags, and resolution timestamps). The dataset does not provide clear evidence that 2+ unresolved tickets is a widespread signal here.
 
 **What we should do:**  
-Prioritize resolution of quality-related tickets within 5 business days. Flag customers with 2+ open product-quality tickets for proactive outreach from customer support before they submit their third ticket or go silent.
+If operationally relevant, export full ticket histories with timestamps and resolution states and re-run the analysis. In the meantime, treat support-ticket severity features as potentially important but not yet validated by these files.
 
 ---
 
-## Finding 3: Discount-Dependent Customers Are a Ticking Clock
+## Finding 3: Discount-Dependency in the data
 
 **What we found:**  
-A segment of customers (~15–20% of the base) has a discount usage rate above 70% — meaning most of their orders use a promo code or campaign discount. These customers show **normal engagement while discounts are active** but drop off sharply (within 30 days) after a discount window closes.
+Contrary to the earlier estimate, the data show that among customers with orders, **2,360 of 2,400 (≈98.3%)** have a historical discount-usage rate >70% (i.e., most of their orders used a discount). Churn rates are similar: high-discount customers churn ≈ **46.99%** vs **45.0%** for others in this dataset.
 
 **What it means:**  
-We have trained a cohort of customers to buy only when it is cheap. Giving these customers more discounts will not fix churn — it will delay it while eroding margins. These customers need either a value reframe or a conscious deprioritization.
+Discount usage is extremely common in these records and by itself is not a unique discriminator of churn — high discount users and others have comparable churn rates here. We should not assume discount-dependency uniformly implies short-term responsiveness to price incentives without further segmentation.
 
 **What we should do:**  
-Do not include high-discount-dependency customers in blanket promo campaigns. Instead, pilot a "product education" campaign for this segment that highlights product benefits without a price incentive. Measure whether value-led messaging can shift purchase behavior.
+Refine the analysis to identify subsegments of discount users (e.g., high-frequency vs low-frequency, recency, product mix) before excluding or targeting them in campaigns. Run A/B tests that compare value-led messaging to targeted discounts for small pilot groups.
 
 ---
 
-## Finding 4: Low App/Web Engagement Predicts Churn 30–45 Days in Advance
+## Finding 4: Low Engagement (sessions_30d) correlates with higher churn
 
 **What we found:**  
-Customers who drop from 4+ sessions/month to fewer than 2 sessions/month show elevated churn risk within the following 45 days. This behavioral signal precedes the order drop-off by approximately 2–3 weeks.
+Using `web_events_snapshot.csv`, churn rates by session bucket are: 0 sessions = **66.32%**, 1 session ≈ **66.67%**, 2–3 sessions ≈ **57.56%**, 4+ sessions = **36.11%**. Higher session counts are associated with materially lower churn.
 
 **What it means:**  
-App engagement is a **leading indicator** — it predicts churn before the customer stops buying. This gives us an earlier intervention window than order data alone.
+Engagement metrics are predictive signals in this dataset; customers with 4+ sessions in 30 days show substantially lower churn and are reasonable to classify as "engaged." These metrics should be included in modeling and live scoring.
 
 **What we should do:**  
-Build a simple engagement health score based on session frequency. Customers showing a 50%+ drop in sessions month-over-month should trigger an in-app notification or personalized content push — not a discount.
+Add `sessions_30d` and `product_views_30d` as core features in the feature store and surface a daily engagement health score. Use 4+ sessions as a conservative active threshold for initial targeting.
 
 ---
 
-## Finding 5: First-Order Customers Without a Second Purchase Within 30 Days Are High-Risk
+## Finding 5: First-order customers without a second purchase within 30 days are higher-risk
 
 **What we found:**  
-Customers who do not place a second order within 30 days of their first order have a significantly higher lifetime churn rate. The "second order conversion" rate is the clearest predictor of long-term retention in the early customer lifecycle.
+From `orders.csv` joined to `churn_labels.csv`: there are **2,400** customers with at least one order; **1,738** of those did not place a second order within 30 days of their first. The churn rate among customers who do not convert to a second order within 30 days is **48.62%**.
 
 **What it means:**  
-New customer onboarding is broken or under-optimized. Many customers try once and disappear — these are acquisition dollars wasted.
+Failure to convert to a second order within 30 days is a common and material early predictor of churn in this dataset — it affects a large fraction of new customers and is associated with roughly a 49% churn rate.
 
 **What we should do:**  
-Launch a dedicated "second order" nurture sequence for all new customers between day 10 and day 25 post-first-order. This is a high-leverage, low-cost intervention that does not require a model.
+Prioritize a lightweight "second order" nurture flow for new customers between day 10 and day 25 post-first-order. Track uplift via an A/B test before scaling.
 
 ---
 
@@ -101,4 +99,3 @@ Launch a dedicated "second order" nurture sequence for all new customers between
 
 ---
 
-*This memo is based on exploratory analysis of the current dataset. Patterns observed here will be formally validated in Part 2 (segmentation) and Part 3 (churn prediction model).*
