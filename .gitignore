@@ -54,9 +54,6 @@ htmlcov/
 .env
 .env.*
 
-# Project outputs and large generated files
-outputs/
-charts/
 
 # Logs
 logs/
