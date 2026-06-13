@@ -91,9 +91,9 @@ Run the full notebook from top to bottom. Charts are saved to `charts/`; summary
 ## Findings Summary
 
 - **Churn rate** in the labeled dataset is 46.96% churned vs 53.04% retained.
-- **Recency** is the strongest signal: customers with last order ≤60 days before snapshot churn at 14.51%, while customers with last order >60 days churn at 100%.
+- **Recency** is the strongest signal: customers with last order ≤60 days before snapshot churn at 18.95%, while customers with last order >60 days churn at 72.30%.
 - **Support ticket status** is not clearly validated in the current CSVs; unresolved-ticket claims require richer ticket-state history.
-- **Discount usage** is very common: 2,360 of 2,400 customers with orders have a discount-usage rate >70%, and churn rates are similar across high- and low-discount cohorts.
+- **Discount usage** is very common: 2,356 of 2,400 customers with orders have a discount-usage rate >70%, and churn rates are similar across high- and low-discount cohorts.
 - **Low engagement** is a strong signal: 4+ sessions in 30 days have a churn rate of 36.11%, while 0 or 1 session have churn rates above 66%.
 
 See `business_memo.md` for prioritized recommendations and evidence-based next steps.

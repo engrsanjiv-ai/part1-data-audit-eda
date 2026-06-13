@@ -16,11 +16,11 @@ The notebook `eda_audit.ipynb` loads files from the `data/` directory into these
 |-------------|---------------------------------|---------------------|----------:|-------|
 | `data/customers.csv` | `customers` (`customers`) | `customer_id` | 2,400 rows × 9 cols | Demographics, signup metadata |
 | `data/orders.csv` | `orders` (`orders`) | `order_id` | 10,009 rows × 10 cols | Transaction history, amounts, returns |
-| `data/support_tickets.csv` | `support_tickets` (`tickets`) | `ticket_id` | 1,921 rows × 8 cols | Customer issues and resolution status |
-| `data/web_events_snapshot.csv` | `web_app_events` (`events`) | `ecustomer_id` | 2,400 rows × 10 cols | Session/event logs (web/mobile) |
+| `data/support_tickets.csv` | `tickets` (`support_tickets`) | `ticket_id` | 1,921 rows × 8 cols | Customer issues and resolution status |
+| `data/web_events_snapshot.csv` | `events` (`web_app_events`) | `customer_id` | 2,400 rows × 10 cols | Session/event logs (web/mobile) |
 | `data/churn_labels.csv` | `churn_labels` (`churn`) | `customer_id` | 2,400 rows × 4 cols | Churn label + `snapshot_date` (target variable) |
 | `data/intervention_history.csv` | `campaigns` (`campaigns`) | `customer_id` | 2,400 rows × 5 cols | Campaign exposures and responses |
-| `data/rfm_modeling_snapshot.csv` | `modeling_snapshot` (`snapshot`) | `customer_id` | 2,400 rows × 29 cols | Precomputed RFM features used for modeling |
+| `data/rfm_modeling_snapshot.csv` | `snapshot` (`modeling_snapshot`) | `customer_id` | 2,400 rows × 29 cols | Precomputed RFM features used for modeling |
 | `data/DATA_DICTIONARY.md` | n/a | — | — | Field definitions and descriptions |
 | `data/STUDENT_FACING_PROBLEM_STATEMENT.md` | n/a | — | — | Project / problem statement |
 | `outputs/merged_master.csv` | `merged_master` (derived) | `customer_id` | (derived) | Consolidated master used by notebooks |
