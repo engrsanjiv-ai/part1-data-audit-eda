@@ -43,7 +43,7 @@ part1-data-audit-eda/
 
 ---
 
-## Setup Instructions
+## Setup Instructions (Tested on Python 3.11.9)
 
 ### 1. Clone the Repository
 ```bash
@@ -103,4 +103,4 @@ See `business_memo.md` for prioritized recommendations and evidence-based next s
 ## Notes
 - The notebook uses **relative paths** and does not rely on hardcoded local directories.
 - No API keys, tokens, or credentials are present in this repository.
-- Python 3.11 is recommended with the dependencies in `requirements.txt`.
+- Python 3.11.9 is recommended with the dependencies in `requirements.txt`.
